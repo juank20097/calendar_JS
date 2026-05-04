@@ -103,7 +103,7 @@ export default function PhotoModal({ date, onClose }) {
                     boxShadow: '0 4px 16px rgba(20,60,200,0.2)',
                   }}
                 >
-                  <img src={photo.image_url} alt={photo.title || date}
+                  <img src={photo.image} alt={photo.title || date}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </motion.div>
               ))}
@@ -124,7 +124,7 @@ export default function PhotoModal({ date, onClose }) {
         >
           <motion.img
             initial={{ scale: 0.85 }} animate={{ scale: 1 }}
-            src={lightbox.image_url} alt={lightbox.title}
+            src={lightbox.image} alt={lightbox.title}
             onClick={e => e.stopPropagation()}
             style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: 16, objectFit: 'contain' }}
           />

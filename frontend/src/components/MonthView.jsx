@@ -27,7 +27,7 @@ export default function MonthView({ year, month, onBack, onPrev, onNext }) {
       // usa la primera fecha con fotos como portada del mes
       if (data.length > 0) {
         api.getPhotosByDate(data[0].date).then(photos => {
-          if (photos.length > 0) setCoverPhoto(photos[0].image_url)
+          if (photos.length > 0) setCoverPhoto(photos[0].image)
         })
       }
     }).catch(() => {})
@@ -47,7 +47,9 @@ export default function MonthView({ year, month, onBack, onPrev, onNext }) {
   }
 
   function isToday(day) {
-    return day && year === today.getFullYear() && month === today.getMonth() && day === today.getDate()
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const cellDate   = new Date(year, month, day)
+    return day && cellDate.toDateString() === todayLocal.toDateString()
   }
 
   function hasPhoto(day) {

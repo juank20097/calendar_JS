@@ -3,7 +3,7 @@ from django.db import models
 
 class Photo(models.Model):
     title = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    image = models.URLField(max_length=500)  # URL de S3
     taken_at = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
