@@ -24,13 +24,13 @@ export default function MonthView({ year, month, onBack, onPrev, onNext }) {
       const map = {}
       data.forEach(d => { map[d.date] = d.count })
       setDatesWithPhotos(map)
-      // usa la primera fecha con fotos como portada del mes
-      if (data.length > 0) {
-        api.getPhotosByDate(data[0].date).then(photos => {
-          if (photos.length > 0) setCoverPhoto(photos[0].image)
-        })
-      }
     }).catch(() => {})
+  }, [year, month])
+
+  useEffect(() => {
+    api.getMonthCover(year, month + 1).then(data => {
+      setCoverPhoto(data.image || null)
+    }).catch(() => setCoverPhoto(null))
   }, [year, month])
 
   const firstDay    = new Date(year, month, 1).getDay()

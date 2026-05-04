@@ -119,15 +119,35 @@ export default function PhotoModal({ date, onClose }) {
           onClick={() => setLightbox(null)}
           style={{
             position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.9)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 20px',
           }}
         >
           <motion.img
             initial={{ scale: 0.85 }} animate={{ scale: 1 }}
             src={lightbox.image} alt={lightbox.title}
             onClick={e => e.stopPropagation()}
-            style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: 16, objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 16, objectFit: 'contain' }}
           />
+          {lightbox.title && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                margin: '10px 0 0',
+                fontFamily: "'Nunito', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#a8c8f0',
+                textAlign: 'center',
+                letterSpacing: 0.5,
+                maxWidth: '85vw',
+              }}
+            >
+              ✨ {lightbox.title}
+            </motion.p>
+          )}
         </motion.div>
       )}
     </motion.div>

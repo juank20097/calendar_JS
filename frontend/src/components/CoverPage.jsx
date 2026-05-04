@@ -119,7 +119,7 @@ export default function CoverPage({ onEnter }) {
             marginBottom: 40,
           }}
         >
-          ✦ Memorias de Juan Sebastián ✦
+          ✦ Memorias de Juan Sebastián✦
         </motion.p>
 
         {/* Botón entrar */}

@@ -15,6 +15,13 @@ export const api = {
     return res.json()
   },
 
+  /** Portada de un mes */
+  async getMonthCover(year, month) {
+    const res = await fetch(`${API_URL}/photos/cover/?year=${year}&month=${month}`)
+    if (!res.ok) return { image: null }
+    return res.json()
+  },
+
   /** Subir una foto */
   async uploadPhoto(formData) {
     const res = await fetch(`${API_URL}/photos/upload/`, {
