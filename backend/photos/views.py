@@ -38,9 +38,10 @@ class PhotoUploadView(APIView):
 
     def post(self, request):
         image_files = request.FILES.getlist('images')
-        taken_at    = request.data.get('taken_at')
-        title       = request.data.get('title', '')
-        is_cover    = request.data.get('is_cover', 'false').lower() == 'true'
+        taken_at    = request.data.get('taken_at') or request.POST.get('taken_at')
+        title       = request.data.get('title') or request.POST.get('title') or ''
+        is_cover_raw = request.data.get('is_cover') or request.POST.get('is_cover') or 'false'
+        is_cover    = is_cover_raw.lower() == 'true'
 
         if not image_files:
             return Response({'error': 'Campo images requerido (uno o varios archivos)'}, status=400)
@@ -63,8 +64,8 @@ class PhotoUploadView(APIView):
                 errors.append(f"Error subiendo {image_file.name} a S3")
                 continue
 
-            # Título: solo aplica si viene uno y es una sola imagen
-            photo_title = title if (len(image_files) == 1) else ''
+            # Título aplica a todas las imágenes
+            photo_title = title
 
             photo = Photo.objects.create(
                 title=photo_title,
