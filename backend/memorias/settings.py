@@ -98,7 +98,8 @@ CORS_ALLOWED_ORIGINS = config(
 ).split(',')
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
-# AWS S3
+# Administradores
+ADMIN_CEDULAS = config('ADMIN_CEDULAS', default='').split(',')
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')

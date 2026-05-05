@@ -5,7 +5,7 @@ const float = (delay = 0, range = 12) => ({
   transition: { duration: 4 + delay, repeat: Infinity, ease: 'easeInOut', delay },
 })
 
-export default function CoverPage({ onEnter }) {
+export default function CoverPage({ onEnter, onTitleTap, onAbout }) {
   return (
     <div style={{
       minHeight: '100vh',
@@ -107,6 +107,7 @@ export default function CoverPage({ onEnter }) {
         </motion.h1>
 
         <motion.p
+          onClick={onTitleTap}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -117,6 +118,7 @@ export default function CoverPage({ onEnter }) {
             textShadow: '0 0 20px rgba(245,200,66,0.5)',
             letterSpacing: 6,
             marginBottom: 40,
+            cursor: 'default',
           }}
         >
           ✦ Memorias de Juan Sebastián✦
@@ -145,6 +147,30 @@ export default function CoverPage({ onEnter }) {
           }}
         >
           🌙 Ver Calendario
+        </motion.button>
+
+        {/* Botón About */}
+        <motion.button
+          onClick={onAbout}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          style={{
+            marginTop: 14,
+            background: 'transparent',
+            border: 'none',
+            color: '#3a5a7a',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: 12, fontWeight: 700,
+            cursor: 'pointer',
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            display: 'block', margin: '14px auto 0',
+          }}
+        >
+          👨‍💻 Acerca del desarrollador
         </motion.button>
       </motion.div>
 
