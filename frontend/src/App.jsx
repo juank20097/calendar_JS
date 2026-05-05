@@ -75,7 +75,7 @@ export default function App() {
       {/* Modal de acceso familiar */}
       <AnimatePresence>
         {showModal && (
-          <AccessModal onSuccess={handleAccessGranted} />
+          <AccessModal onSuccess={handleAccessGranted} onClose={() => setShowModal(false)} />
         )}
       </AnimatePresence>
     </>

@@ -8,7 +8,7 @@ export function isVerified() {
   return localStorage.getItem(STORAGE_KEY) === 'ok'
 }
 
-export default function AccessModal({ onSuccess }) {
+export default function AccessModal({ onSuccess, onClose }) {
   const [code, setCode]       = useState('')
   const [error, setError]     = useState(false)
   const [shaking, setShaking] = useState(false)
@@ -173,6 +173,22 @@ export default function AccessModal({ onSuccess }) {
           }}
         >
           Ver mis recuerdos 🌟
+        </motion.button>
+
+        {/* Botón regresar */}
+        <motion.button
+          onClick={onClose}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          style={{
+            marginTop: 12, width: '100%', padding: 11, borderRadius: 14,
+            border: '1px solid rgba(100,150,255,0.15)',
+            background: 'transparent',
+            color: '#3a5a7a', fontFamily: "'Nunito',sans-serif",
+            fontWeight: 700, fontSize: 13, cursor: 'pointer', letterSpacing: 1,
+          }}
+        >
+          ← Regresar a la portada
         </motion.button>
 
         {/* Nota al pie */}
