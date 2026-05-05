@@ -17,10 +17,10 @@ class Photo(models.Model):
 
 
 class MonthCover(models.Model):
-    """Foto de portada para un mes específico."""
-    year  = models.IntegerField()
-    month = models.IntegerField()  # 1-12
-    image = models.URLField(max_length=500)
+    """Portadas de carrusel para un mes específico."""
+    year     = models.IntegerField()
+    month    = models.IntegerField()  # 1-12
+    images   = models.JSONField(default=list)  # lista de URLs
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -29,4 +29,4 @@ class MonthCover(models.Model):
         verbose_name_plural = 'Portadas de mes'
 
     def __str__(self):
-        return f"Portada {self.year}-{str(self.month).zfill(2)}"
+        return f"Portada {self.year}-{str(self.month).zfill(2)} ({len(self.images)} imágenes)"

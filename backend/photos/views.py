@@ -28,66 +28,83 @@ class PhotosByDateView(APIView):
 
 class PhotoUploadView(APIView):
     """POST /api/photos/upload/
-    Form-data:
-      - image       (file, requerido)
+    Form-data (múltiples imágenes):
+      - images      (files[], requerido — uno o varios archivos)
       - taken_at    (YYYY-MM-DD, requerido)
-      - title       (texto, opcional)
-      - is_cover    (true/false, opcional — si true reemplaza la portada del mes)
+      - title       (texto, opcional — aplica a todas si solo es una, ignorado si son varias)
+      - is_cover    (true/false, opcional — si true, AGREGA todas al carrusel de portada del mes)
     """
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        image_file = request.FILES.get('image')
-        taken_at   = request.data.get('taken_at')
-        title      = request.data.get('title', '')
-        is_cover   = request.data.get('is_cover', 'false').lower() == 'true'
+        image_files = request.FILES.getlist('images')
+        taken_at    = request.data.get('taken_at')
+        title       = request.data.get('title', '')
+        is_cover    = request.data.get('is_cover', 'false').lower() == 'true'
 
-        if not image_file:
-            return Response({'error': 'Campo image requerido'}, status=400)
+        if not image_files:
+            return Response({'error': 'Campo images requerido (uno o varios archivos)'}, status=400)
         if not taken_at:
             return Response({'error': 'Campo taken_at requerido (YYYY-MM-DD)'}, status=400)
 
-        # Parsear año y mes del taken_at
         try:
             year  = int(taken_at.split('-')[0])
             month = int(taken_at.split('-')[1])
         except (IndexError, ValueError):
             return Response({'error': 'Formato de taken_at inválido, usa YYYY-MM-DD'}, status=400)
 
-        # Subir imagen a S3
-        image_url = self._upload_to_s3(image_file, taken_at)
-        if isinstance(image_url, Response):
-            return image_url  # error de S3
+        uploaded   = []
+        cover_urls = []
+        errors     = []
 
-        # Guardar foto en DB
-        photo = Photo.objects.create(
-            title=title,
-            image=image_url,
-            taken_at=taken_at,
-        )
+        for idx, image_file in enumerate(image_files):
+            image_url = self._upload_to_s3(image_file, taken_at)
+            if image_url is None:
+                errors.append(f"Error subiendo {image_file.name} a S3")
+                continue
 
-        # Si is_cover=true, actualizar o crear portada del mes
+            # Título: solo aplica si viene uno y es una sola imagen
+            photo_title = title if (len(image_files) == 1) else ''
+
+            photo = Photo.objects.create(
+                title=photo_title,
+                image=image_url,
+                taken_at=taken_at,
+            )
+            uploaded.append({
+                'id': photo.id,
+                'title': photo.title,
+                'image': photo.image,
+                'taken_at': str(photo.taken_at),
+                'created_at': str(photo.created_at),
+            })
+
+            if is_cover:
+                cover_urls.append(image_url)
+
+        # Agregar al carrusel de portada del mes
         cover_updated = False
-        if is_cover:
-            MonthCover.objects.update_or_create(
+        if is_cover and cover_urls:
+            cover, _ = MonthCover.objects.get_or_create(
                 year=year,
                 month=month,
-                defaults={'image': image_url},
+                defaults={'images': []}
             )
+            cover.images = cover.images + cover_urls
+            cover.save()
             cover_updated = True
 
         return Response({
-            'id': photo.id,
-            'title': photo.title,
-            'image': photo.image,
-            'taken_at': str(photo.taken_at),
-            'created_at': str(photo.created_at),
+            'uploaded': uploaded,
+            'total': len(uploaded),
             'is_cover': cover_updated,
+            'cover_images_total': len(cover.images) if cover_updated else None,
+            'errors': errors,
         }, status=201)
 
     def _upload_to_s3(self, image_file, taken_at):
-        ext     = os.path.splitext(image_file.name)[1].lower() or '.jpg'
-        s3_key  = f"photos/{taken_at}/{uuid.uuid4().hex}{ext}"
+        ext    = os.path.splitext(image_file.name)[1].lower() or '.jpg'
+        s3_key = f"photos/{taken_at}/{uuid.uuid4().hex}{ext}"
 
         s3 = boto3.client(
             's3',
@@ -104,8 +121,8 @@ class PhotoUploadView(APIView):
                 s3_key,
                 ExtraArgs={'ContentType': image_file.content_type},
             )
-        except ClientError as e:
-            return Response({'error': f'Error subiendo a S3: {str(e)}'}, status=500)
+        except ClientError:
+            return None
 
         return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{s3_key}"
 
@@ -136,7 +153,9 @@ class CalendarDatesView(APIView):
 
 
 class MonthCoverView(APIView):
-    """GET /api/photos/cover/?year=YYYY&month=MM"""
+    """GET /api/photos/cover/?year=YYYY&month=MM
+    Devuelve la lista de imágenes del carrusel de portada.
+    """
 
     def get(self, request):
         year  = request.query_params.get('year')
@@ -147,6 +166,6 @@ class MonthCoverView(APIView):
 
         try:
             cover = MonthCover.objects.get(year=int(year), month=int(month))
-            return Response({'image': cover.image})
+            return Response({'images': cover.images})
         except MonthCover.DoesNotExist:
-            return Response({'image': None})
+            return Response({'images': []})

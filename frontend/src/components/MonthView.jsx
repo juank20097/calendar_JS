@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../api'
 import PhotoModal from './PhotoModal'
@@ -17,7 +17,9 @@ const CORNER_PLANETS = [
 export default function MonthView({ year, month, onBack, onPrev, onNext }) {
   const [datesWithPhotos, setDatesWithPhotos] = useState({})
   const [selectedDate, setSelectedDate]       = useState(null)
-  const [coverPhoto, setCoverPhoto]           = useState(null)
+  const [coverImages, setCoverImages]         = useState([])
+  const [coverIdx, setCoverIdx]               = useState(0)
+  const carouselRef                           = useRef(null)
 
   useEffect(() => {
     api.getCalendarDates(year, month + 1).then(data => {
@@ -29,9 +31,19 @@ export default function MonthView({ year, month, onBack, onPrev, onNext }) {
 
   useEffect(() => {
     api.getMonthCover(year, month + 1).then(data => {
-      setCoverPhoto(data.image || null)
-    }).catch(() => setCoverPhoto(null))
+      setCoverImages(data.images || [])
+      setCoverIdx(0)
+    }).catch(() => setCoverImages([]))
   }, [year, month])
+
+  // Carrusel — cambia cada 60 segundos
+  useEffect(() => {
+    if (coverImages.length <= 1) return
+    carouselRef.current = setInterval(() => {
+      setCoverIdx(i => (i + 1) % coverImages.length)
+    }, 60000)
+    return () => clearInterval(carouselRef.current)
+  }, [coverImages])
 
   const firstDay    = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -140,9 +152,55 @@ export default function MonthView({ year, month, onBack, onPrev, onNext }) {
             boxShadow:'0 0 40px rgba(50,100,200,0.25), inset 0 0 60px rgba(0,0,50,0.5)',
           }}
         >
-          {coverPhoto ? (
-            <img src={coverPhoto} alt="Foto del mes"
-              style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.9 }} />
+          {coverImages.length > 0 ? (
+            <>
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={coverIdx}
+                  src={coverImages[coverIdx]}
+                  alt="Portada del mes"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.92 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.x < -50) {
+                      clearInterval(carouselRef.current)
+                      setCoverIdx(i => (i + 1) % coverImages.length)
+                    } else if (info.offset.x > 50) {
+                      clearInterval(carouselRef.current)
+                      setCoverIdx(i => (i - 1 + coverImages.length) % coverImages.length)
+                    }
+                  }}
+                  style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0, cursor:'grab' }}
+                />
+              </AnimatePresence>
+              {/* Puntos indicadores */}
+              {coverImages.length > 1 && (
+                <div style={{
+                  position:'absolute', bottom:8, left:0, right:0,
+                  display:'flex', justifyContent:'center', gap:6, zIndex:5,
+                }}>
+                  {coverImages.map((_, i) => (
+                    <div
+                      key={i}
+                      onClick={() => { clearInterval(carouselRef.current); setCoverIdx(i) }}
+                      style={{
+                        width: i === coverIdx ? 18 : 6,
+                        height: 6,
+                        borderRadius: 99,
+                        background: i === coverIdx ? '#e8f0ff' : 'rgba(255,255,255,0.3)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
             <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:10 }}>
               <motion.div animate={{ rotate:[0,360] }} transition={{ duration:20, repeat:Infinity, ease:'linear' }}

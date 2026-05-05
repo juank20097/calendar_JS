@@ -47,16 +47,12 @@ export default function AccessModal({ onSuccess }) {
     >
       <motion.div
         initial={{ scale: 0.75, opacity: 0, y: 30 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
+        animate={shaking
+          ? { x: [-10, 10, -8, 8, -4, 4, 0], scale: 1, opacity: 1, y: 0 }
+          : { scale: 1, opacity: 1, y: 0, x: 0 }
+        }
         exit={{ scale: 0.75, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-        animate={shaking ? {
-          x: [-10, 10, -8, 8, -4, 4, 0],
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.5 }
-        } : { scale: 1, opacity: 1, y: 0 }}
         style={{
           width: '100%',
           maxWidth: 400,
