@@ -62,9 +62,23 @@ export default function AccessModal({ onSuccess, onClose }) {
           padding: '36px 28px',
           boxShadow: '0 0 80px rgba(30,80,200,0.3)',
           textAlign: 'center',
+          position: 'relative',
         }}
       >
-        {/* Emojis decorativos */}
+        {/* Botón X cerrar */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 14, right: 14,
+            width: 30, height: 30, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(100,150,255,0.2)',
+            color: '#3a5a7a', fontSize: 16, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >✕</button>
+
+        {/* Emoji flotante */}
         <motion.div
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
@@ -84,29 +98,24 @@ export default function AccessModal({ onSuccess, onClose }) {
           ¡Hola, familia! 👋
         </h2>
 
-        {/* Mensaje de Juan Carlos y Sofía */}
         <p style={{
           fontFamily: "'Nunito', sans-serif",
-          fontSize: 14,
-          color: '#7a9abf',
-          lineHeight: 1.7,
-          margin: '0 0 8px',
+          fontSize: 14, color: '#7a9abf',
+          lineHeight: 1.7, margin: '0 0 8px',
         }}>
           Somos <strong style={{ color: '#a8c8f0' }}>Juan Carlos y Sofía</strong> 💛
         </p>
         <p style={{
           fontFamily: "'Nunito', sans-serif",
-          fontSize: 14,
-          color: '#7a9abf',
-          lineHeight: 1.7,
-          margin: '0 0 24px',
+          fontSize: 14, color: '#7a9abf',
+          lineHeight: 1.7, margin: '0 0 24px',
         }}>
           Hemos creado este espacio especial para compartir los momentos más bonitos de{' '}
           <strong style={{ color: '#f5c842' }}>Juan Sebastián</strong> con ustedes.
           Para proteger estos recuerdos, ingresa el código que te compartimos 🌟
         </p>
 
-        {/* Input código */}
+        {/* Input */}
         <input
           ref={inputRef}
           value={code}
@@ -115,36 +124,21 @@ export default function AccessModal({ onSuccess, onClose }) {
           placeholder="Ingresa el código familiar"
           autoFocus
           style={{
-            width: '100%',
-            padding: '14px 18px',
-            borderRadius: 14,
+            width: '100%', padding: '14px 18px', borderRadius: 14,
             border: `1.5px solid ${error ? '#e05555' : 'rgba(100,150,255,0.3)'}`,
-            background: 'rgba(255,255,255,0.05)',
-            color: '#e8f0ff',
-            fontFamily: "'Nunito', sans-serif",
-            fontSize: 16,
-            fontWeight: 700,
-            letterSpacing: 3,
-            textAlign: 'center',
-            outline: 'none',
-            boxSizing: 'border-box',
+            background: 'rgba(255,255,255,0.05)', color: '#e8f0ff',
+            fontFamily: "'Nunito', sans-serif", fontSize: 16,
+            fontWeight: 700, letterSpacing: 3, textAlign: 'center',
+            outline: 'none', boxSizing: 'border-box',
             transition: 'border-color 0.2s',
           }}
         />
 
-        {/* Mensaje error */}
         <AnimatePresence>
           {error && (
             <motion.p
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              style={{
-                fontFamily: "'Nunito', sans-serif",
-                fontSize: 13,
-                color: '#e07070',
-                margin: '8px 0 0',
-              }}
+              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: '#e07070', margin: '8px 0 0' }}
             >
               Código incorrecto, inténtalo de nuevo 🌙
             </motion.p>
@@ -157,46 +151,20 @@ export default function AccessModal({ onSuccess, onClose }) {
           whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(100,160,255,0.4)' }}
           whileTap={{ scale: 0.96 }}
           style={{
-            marginTop: 20,
-            width: '100%',
-            padding: '14px',
-            borderRadius: 14,
-            border: '1.5px solid rgba(100,150,255,0.4)',
+            marginTop: 20, width: '100%', padding: '14px',
+            borderRadius: 14, border: '1.5px solid rgba(100,150,255,0.4)',
             background: 'linear-gradient(135deg, #1a3a7e, #2a5298)',
-            color: '#e8f0ff',
-            fontFamily: "'Nunito', sans-serif",
-            fontWeight: 800,
-            fontSize: 15,
-            letterSpacing: 2,
-            cursor: 'pointer',
-            textTransform: 'uppercase',
+            color: '#e8f0ff', fontFamily: "'Nunito', sans-serif",
+            fontWeight: 800, fontSize: 15, letterSpacing: 2,
+            cursor: 'pointer', textTransform: 'uppercase',
           }}
         >
           Ver mis recuerdos 🌟
         </motion.button>
 
-        {/* Botón regresar */}
-        <motion.button
-          onClick={onClose}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.96 }}
-          style={{
-            marginTop: 12, width: '100%', padding: 11, borderRadius: 14,
-            border: '1px solid rgba(100,150,255,0.15)',
-            background: 'transparent',
-            color: '#3a5a7a', fontFamily: "'Nunito',sans-serif",
-            fontWeight: 700, fontSize: 13, cursor: 'pointer', letterSpacing: 1,
-          }}
-        >
-          ← Regresar a la portada
-        </motion.button>
-
-        {/* Nota al pie */}
         <p style={{
           fontFamily: "'Nunito', sans-serif",
-          fontSize: 12,
-          color: '#3a5a7a',
-          marginTop: 16,
+          fontSize: 12, color: '#3a5a7a', marginTop: 16,
         }}>
           ¿No tienes el código? Escríbenos 💬
         </p>

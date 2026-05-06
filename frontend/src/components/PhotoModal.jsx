@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import dayjs from 'dayjs'
 import 'dayjs/locale/es'
 import { api } from '../api'
@@ -7,8 +7,8 @@ import { api } from '../api'
 dayjs.locale('es')
 
 export default function PhotoModal({ date, onClose }) {
-  const [photos, setPhotos] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [photos, setPhotos]     = useState([])
+  const [loading, setLoading]   = useState(true)
   const [lightbox, setLightbox] = useState(null)
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function PhotoModal({ date, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={onClose}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
       style={{
         position: 'fixed', inset: 0, zIndex: 50,
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
@@ -41,8 +41,7 @@ export default function PhotoModal({ date, onClose }) {
           width: '100%', maxWidth: 460,
           background: 'linear-gradient(160deg, #0a1628, #0d1f3c)',
           border: '1px solid rgba(100,150,255,0.25)',
-          borderRadius: 24,
-          overflow: 'hidden',
+          borderRadius: 24, overflow: 'hidden',
           maxHeight: '85vh',
           boxShadow: '0 0 60px rgba(30,80,200,0.3)',
         }}
@@ -50,10 +49,8 @@ export default function PhotoModal({ date, onClose }) {
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, #0a2060, #1a3a8e)',
-          padding: '20px 20px 16px',
-          textAlign: 'center',
-          position: 'relative',
-          borderBottom: '1px solid rgba(100,150,255,0.2)',
+          padding: '20px 20px 16px', textAlign: 'center',
+          position: 'relative', borderBottom: '1px solid rgba(100,150,255,0.2)',
         }}>
           <button onClick={onClose} style={{
             position: 'absolute', top: 14, right: 14,
@@ -62,17 +59,11 @@ export default function PhotoModal({ date, onClose }) {
             color: '#a8c8f0', fontSize: 14, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>✕</button>
-
           <div style={{ fontSize: 36, marginBottom: 6 }}>🌌</div>
-          <h3 style={{
-            fontFamily: "'Dancing Script', cursive",
-            fontSize: 24, color: '#e8f0ff',
-            textShadow: '0 0 20px rgba(100,160,255,0.5)',
-            margin: '0 0 4px',
-          }}>
+          <h3 style={{ fontFamily: "'Dancing Script', cursive", fontSize: 24, color: '#e8f0ff', textShadow: '0 0 20px rgba(100,160,255,0.5)', margin: '0 0 4px' }}>
             {formattedDate}
           </h3>
-          <p style={{ color: '#4a6fa5', fontSize: 13, fontFamily: "'Nunito',sans-serif" }}>
+          <p style={{ color: '#4a6fa5', fontSize: 13, fontFamily: "'Nunito',sans-serif", margin: 0 }}>
             {photos.length} {photos.length === 1 ? 'recuerdo' : 'recuerdos'} de este día ✨
           </p>
         </div>
@@ -112,44 +103,52 @@ export default function PhotoModal({ date, onClose }) {
         </div>
       </motion.div>
 
-      {/* Lightbox */}
-      {lightbox && (
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          onClick={() => setLightbox(null)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.9)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 20px',
-          }}
-        >
-          <motion.img
-            initial={{ scale: 0.85 }} animate={{ scale: 1 }}
-            src={lightbox.image} alt={lightbox.title}
+      {/* Lightbox — no cierra el modal al cerrarse */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={e => e.stopPropagation()}
-            style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 16, objectFit: 'contain' }}
-          />
-          {lightbox.title && (
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              onClick={e => e.stopPropagation()}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.92)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 20px',
+            }}
+          >
+            {/* Botón X para cerrar solo el lightbox */}
+            <button
+              onClick={() => setLightbox(null)}
               style={{
-                margin: '10px 0 0',
-                fontFamily: "'Nunito', sans-serif",
-                fontSize: 13,
-                fontWeight: 600,
-                color: '#a8c8f0',
-                textAlign: 'center',
-                letterSpacing: 0.5,
-                maxWidth: '85vw',
+                position: 'absolute', top: 20, right: 20,
+                width: 38, height: 38, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff', fontSize: 18, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
-            >
-              ✨ {lightbox.title}
-            </motion.p>
-          )}
-        </motion.div>
-      )}
+            >✕</button>
+
+            <motion.img
+              initial={{ scale: 0.85 }} animate={{ scale: 1 }}
+              src={lightbox.image} alt={lightbox.title}
+              style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 16, objectFit: 'contain' }}
+            />
+
+            {lightbox.title && (
+              <motion.p
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                style={{
+                  margin: '12px 0 0', fontFamily: "'Nunito', sans-serif",
+                  fontSize: 13, fontWeight: 600, color: '#a8c8f0',
+                  textAlign: 'center', letterSpacing: 0.5, maxWidth: '85vw',
+                }}
+              >
+                ✨ {lightbox.title}
+              </motion.p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
